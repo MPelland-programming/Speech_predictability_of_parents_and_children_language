@@ -1,6 +1,5 @@
-.Rproj.user
-.Rhistory
-.RData
-.Ruserdata
-.ipynb
-.qmd
+*.Rproj.user
+*.Rhistory
+*.RData
+*.Ruserdata
+*.ipynb
