@@ -1,0 +1,19 @@
+text_folder: 
+config_folder: 
+transcript_file_list: model.csv
+preprocessing_steps:
+- m01b
+- m02
+- m04b
+- m05
+- m06
+nallocate: 262144
+context_length: 0
+turn: True
+batch_size: 80
+batch_type: ntokens
+num_workers: 0
+measures:
+- sum_entropy
+- sum_surprisal
+output_folder: 
