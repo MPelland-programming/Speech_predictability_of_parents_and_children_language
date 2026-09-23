@@ -12,7 +12,9 @@ import sbatchwriter as sbw
 #Fix description:
 #  -specify what batch size means
 #  -review config doc to put all configs.
+#  -setup local main to be callable
 #Remove all special letters at the end of preprocessing.
+#Description of local_main parser
 
 ## Command line input ##
 parser = argparse.ArgumentParser(
