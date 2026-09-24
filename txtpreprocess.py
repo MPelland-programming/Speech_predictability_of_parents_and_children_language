@@ -4,7 +4,7 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 import yaml
-import preprocessing_fx_dictionaries as pfd
+import importlib
 
 def get_file_and_pcodes(participant_doc):
     """
@@ -26,8 +26,9 @@ class TextExtraction:
     Input: a file with text (.flo.cex)
     Output: a list containing each list. The nested lists each contain one utterance.
     """
-    def __init__(self,method_list=[], fx_dict = pfd.return_fx_dict("default")):
-        self.dict_methods = fx_dict
+
+    def __init__(self,method_list=[], prep_fx_py = "preprocessing_fx_dictionaries", org_fx_dict = "default"):
+        self.dict_methods = dict_methods = importlib.import_module(prep_fx_py).return_fx_dict(prep_fx_dict)
         if not (type(method_list) is list):
             raise TypeError("method_list must be a list")
 

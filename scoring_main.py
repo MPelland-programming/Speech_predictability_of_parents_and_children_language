@@ -12,9 +12,14 @@ import sbatchwriter as sbw
 #Fix description:
 #  -specify what batch size means
 #  -review config doc to put all configs.
-#  -setup local main to be callable
+#  -make model selectable from config file
+#  -make file to use as preprocessing dict selectable from config file
+#  -add description of how to use options for the different functions
+#  -remove this line : myallocator.allocate(config["nallocate"]) to fit with allocator options
+#  -also change dataset parameters to fit with config options
 #Remove all special letters at the end of preprocessing.
 #Description of local_main parser
+#Modify code to take in a file with the scoring methods, just like the preprocessing steps.
 
 ## Command line input ##
 parser = argparse.ArgumentParser(
@@ -72,9 +77,8 @@ with open(args.config_file) as f:
 task = args.task
 text_folder = config["text_folder"]
 preprocessing_steps = config["preprocessing_steps"]
+modelname = config.get("model","/home/mpelland/links/projects/def-eporte2/mpelland/predictability/lang_models/mistral/m7Bv03/snapshots/caa1feb0e54d415e2df31207e5f4e273e33509b1/")
 
-if "batch_type" not in config.keys():
-    config["batch_type"] = "nlines"
 
 if "transcript_file_list" in config.keys():
     if args.transcript_file_list:
@@ -87,15 +91,16 @@ else:
 ################
 ## Main part ##
 ################
-modelname = "/home/mpelland/links/projects/def-eporte2/mpelland/predictability/lang_models/mistral/m7Bv03/snapshots/caa1feb0e54d415e2df31207e5f4e273e33509b1/"
-
 
 #setup extra vars
-extractor = txtp.TextExtraction(preprocessing_steps)
+prepro_opts = config.get("preprocessing_opts",{})
+extractor = txtp.TextExtraction(preprocessing_steps,**prepro_opts)
 
 #count and allocation task
 if task == "count":
-    myallocator = txtp.Allocator(transcript_file_list,text_folder,extractor)
+    allocator_opts = config.get("allocator_opts", {})
+
+    myallocator = txtp.Allocator(transcript_file_list,text_folder,extractor,**allocator_opts)
     myallocator.allocate(config["nallocate"])
     num_score_jobs = myallocator.write_allocation(config)
     sbw.write_sbatch_file(num_score_jobs,config)
@@ -117,10 +122,10 @@ if task == "score":
 
     scorer = txtsc.SentenceScorer(transcript_file_list, text_folder, extractor, tokenizer)
     dataset_params = {
-        "context_length": config["context_length"],
-        "batch_size": config["batch_size"],
-        "batch_type": config["batch_type"],
-        "num_workers": config["num_workers"]
+        "context_length": config["context_length"]
+        ,"batch_size": config["batch_size"]
+        ,"batch_type": config.get("batch_type", "nlines") #defaults to nlines if not specified in config file
+        ,"num_workers": config["num_workers"]
     }
 
     scorer.gen_dataset_and_dataloader(**dataset_params)
